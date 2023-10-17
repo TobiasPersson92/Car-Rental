@@ -1,0 +1,100 @@
+﻿@page "/"
+@using Car_Rental.Business.Classes
+@using Car_Rental.Common.Interfaces
+@using Car_Rental.Common.Enums
+@inject BookingProcessor bp
+
+<PageTitle>Car Rental Assignment</PageTitle>
+
+<h1>Car Rental Assignment</h1>
+
+<!--Tabell för customers-->
+<table class="table">
+    <thead>
+        <th scope="col">SSN</th>
+        <th scope="col">Last Name</th>
+        <th scope="col">First Name</th>
+    </thead>
+    <tbody>
+        <!--foreach loop? -->
+        @foreach (var customer in bp.GetCustomers())
+        {
+            <tr>
+                <th scope="row">@customer.Ssn</th>
+                <td>@customer.LastName</td>
+                <td>@customer.FirstName</td>
+            </tr>
+        }
+        
+    </tbody>
+</table>
+
+<!--Tabell för vehicles-->
+<table class="table">
+    <thead>
+    <th scope="col">RegNo</th>
+    <th scope="col">Make</th>
+    <th scope="col">Odometer</th>
+    <th scope="col">Cost Km</th>
+    <th scope="col">Vehicle Type</th>
+    <th scope="col">$ Day</th>
+    <th scope="col">Status</th>
+    </thead>
+    <tbody>
+        <!--foreach loop? -->
+        @foreach (var vehicle in bp.GetVehicles())
+        {
+            <tr>
+                <th scope="row">@vehicle.RegNo</th>
+                <td>@vehicle.Make</td>
+                <td>@vehicle.Odometer</td>
+                <td>@vehicle.CostKm</td>
+                <td>@vehicle.VehicleType</td>
+                <td>@vehicle.CostDay</td>
+                <td>@vehicle.VehicleStatus</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!--Tabell för bookings-->
+<table class="table">
+    <thead>
+    <th scope="col">RegNo</th>
+    <th scope="col">Customer</th>
+    <th scope="col">Km Reneted</th>
+    <th scope="col">Km Returned</th>
+    <th scope="col">Reneted</th>
+    <th scope="col">Returned</th>
+    <th scope="col">Cost</th>
+    <th scope="col">Status</th>
+    </thead>
+    <tbody>
+        <!--foreach loop? -->
+        @foreach (var booking in bp.GetBookings())
+        {
+            <tr>
+                <th scope="row">@booking.Vehicles.RegNo</th>
+                <td>@booking.Persons.LastName @booking.Persons.FirstName (@booking.Persons.Ssn)</td>
+                <td>@booking.Vehicles.Odometer</td>
+                @if (booking.Vehicles.VehicleStatus == VehicleStatuses.Available)
+                {
+                    <td>@(booking.Vehicles.Odometer + booking.Distance)</td>
+                    <td>@booking.RentDate.ToShortDateString()</td>
+                    <td>@booking.ReturnDate.ToShortDateString()</td>
+                    <td>@booking.Cost</td>
+                    <td class="badge rounded-pill bg-success">Closed</td>
+                }
+                else
+                {
+                    <td></td>
+                    <td>@booking.RentDate.ToShortDateString()</td>
+                    <td></td>
+                    <td></td>
+                    <td class="badge rounded-pill bg-danger">Open</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
