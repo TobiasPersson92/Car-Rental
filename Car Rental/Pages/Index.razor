@@ -1,8 +1,11 @@
 ﻿@page "/"
 @using Car_Rental.Business.Classes
+@using Car_Rental.Common.Classes;
 @using Car_Rental.Common.Interfaces
 @using Car_Rental.Common.Enums
+@inject InputStorage input
 @inject BookingProcessor bp
+
 
 <PageTitle>Car Rental Assignment</PageTitle>
 
@@ -16,7 +19,16 @@
         <th scope="col">First Name</th>
     </thead>
     <tbody>
-        <!--foreach loop? -->
+         <tr>
+                <td><input type="number" placeholder="SSN" @bind=input.Person.Ssn/></td>
+            <td><input type="text" placeholder="Last Name" @bind=input.Person.LastName /></td>
+                <td>
+                <input type="text" placeholder="First Name" @bind=input.Person.FirstName />
+                    <button onclick="@(()=> bp.AddCustomer(input.Person))">Add</button>
+                </td>
+         </tr>
+        
+        <!--foreach loop -->
         @foreach (var customer in bp.GetCustomers())
         {
             <tr>
@@ -25,7 +37,6 @@
                 <td>@customer.FirstName</td>
             </tr>
         }
-        
     </tbody>
 </table>
 
@@ -38,10 +49,31 @@
     <th scope="col">Cost Km</th>
     <th scope="col">Vehicle Type</th>
     <th scope="col">$ Day</th>
+    <th scope="col">Action</th>
     <th scope="col">Status</th>
     </thead>
     <tbody>
-        <!--foreach loop? -->
+        <tr>
+            <td><input type="text" placeholder="RegNo" @bind=input.Vehicle.RegNo /></td>
+            <td><input type="text" placeholder="Make" @bind=input.Vehicle.Make /></td>
+            <td><input type="number" placeholder=0 @bind=input.Vehicle.Odometer /></td>
+            <td><input type="number" placeholder=0 @bind=input.Vehicle.CostKm /></td>
+            <td>
+                <InputSelect id="vehicletypes" @bind-Value="input.Vehicle.VehicleType">
+                    @foreach (var vehicletype in Enum.GetValues(typeof(VehicleTypes)))
+                    {
+                        <option value="@vehicletype">@vehicletype</option>
+                    }
+                </InputSelect>
+            </td>
+            <td><input type="number" placeholder=0 @bind=input.Vehicle.CostDay/></td>
+            <td>
+                <button onclick="@(()=> bp.AddVehicle(input.Vehicle))">
+                    Add
+                </button>
+            </td>
+        </tr>
+        <!--foreach loop -->
         @foreach (var vehicle in bp.GetVehicles())
         {
             <tr>
@@ -51,6 +83,25 @@
                 <td>@vehicle.CostKm</td>
                 <td>@vehicle.VehicleType</td>
                 <td>@vehicle.CostDay</td>
+                @if (vehicle.VehicleStatus == VehicleStatuses.Booked)
+                {
+                    <td>
+                        <input type="number" placeholder="Distance" >
+                        <button>Return</button>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                         <InputSelect id="rentvehicle" @bind-Value=input.Person.Id>
+                             @foreach (var customer in bp.GetCustomers())
+                             {
+                                <option value="@customer.Id">@customer.LastName @customer.FirstName (@customer.Ssn)</option>
+                             }
+                         </InputSelect>
+                        <button onclick="@(()=> bp.RentVehicle(vehicle.Id, input.Person.Id))">Rent</button>
+                    </td>
+                }
                 <td>@vehicle.VehicleStatus</td>
             </tr>
         }
@@ -62,15 +113,15 @@
     <thead>
     <th scope="col">RegNo</th>
     <th scope="col">Customer</th>
-    <th scope="col">Km Reneted</th>
+    <th scope="col">Km Rented</th>
     <th scope="col">Km Returned</th>
-    <th scope="col">Reneted</th>
+    <th scope="col">Rented</th>
     <th scope="col">Returned</th>
     <th scope="col">Cost</th>
     <th scope="col">Status</th>
     </thead>
     <tbody>
-        <!--foreach loop? -->
+        <!--foreach loop -->
         @foreach (var booking in bp.GetBookings())
         {
             <tr>
@@ -98,3 +149,9 @@
     </tbody>
 </table>
 
+@if (bp.Message.Length > 0)
+{
+    <div class="alert alert-danger" role="alert">
+        @bp.Message
+    </div>
+}
