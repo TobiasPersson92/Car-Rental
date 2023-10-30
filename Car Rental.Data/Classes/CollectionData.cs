@@ -33,9 +33,9 @@ public class CollectionData : IData
         _vehicles.Add(new Motorcycle(NextVehicleId, "MNO234", "Yamaha", 30000, 0.5, VehicleTypes.Motorcycle, 50, VehicleStatuses.Available));
 
         //Seed bookings
-        _bookings.Add(new Booking(NextBookingId, _persons.First(p => p.Ssn == 12345), _vehicles.First(v => v.RegNo == "GHI789"), DateTime.Now));
+        _bookings.Add(new Booking(NextBookingId, _persons.First(p => p.Ssn == 12345), _vehicles.First(v => v.RegNo == "GHI789"), DateTime.Now, BookingStatuses.Open));
         _bookings.Add(new Booking(NextBookingId, _persons.First(p => p.Ssn == 98765), _vehicles.First(v => v.RegNo == "JKL012"),
-            DateTime.Now, _vehicles.First(v => v.RegNo == "JKL012").CostDay));
+            DateTime.Now, _vehicles.First(v => v.RegNo == "JKL012").CostDay, BookingStatuses.Closed));
     }
 
     public IEnumerable<IPerson> GetPersons() => _persons;

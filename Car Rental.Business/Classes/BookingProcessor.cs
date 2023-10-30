@@ -26,12 +26,56 @@ public class BookingProcessor
     }
     public void RentVehicle(int vehicleId, int customerId)
     {
-        Message = $"vehicle id: {vehicleId} customerId: {customerId}";
-        _db.Add<Booking>(new Booking(_db.NextBookingId,
+        try
+        {
+            if (GetVehicle(vehicleId) == null || GetPerson(customerId) == null)
+            {
+                Message = "You must chose a valid vehicle and customer";
+                return;
+            }
+
+            _db.Add<Booking>(new Booking(_db.NextBookingId,
             GetPerson(customerId),
             GetVehicle(vehicleId),
-            DateTime.Now));
-        GetVehicle(vehicleId).VehicleStatus = VehicleStatuses.Booked;
+            DateTime.Now,
+            BookingStatuses.Open));
+            GetVehicle(vehicleId).VehicleStatus = VehicleStatuses.Booked;
+        }
+        catch (Exception ex)
+        {
+
+            Message = ex.Message;
+        }
+        
+    }
+
+    public void ReturnVehicle(int vehicleId, int distance) 
+    {
+        try
+        {
+            
+            var booking = GetBookings(vehicleId);
+            if (booking == null)
+            {
+                Message = "No booking found";
+                return;
+            }
+
+            booking.ReturnDate = DateTime.Now;
+            var days = (booking.ReturnDate.ToShortDateString() == booking.RentDate.ToShortDateString()) ? 1 : (booking.ReturnDate - booking.RentDate).Days;
+            booking.Cost = (days * booking.Vehicles.CostDay) + (distance * booking.Vehicles.CostKm);
+
+            booking.Distance = distance;
+            booking.Vehicles.Odometer += distance;
+            booking.Vehicles.VehicleStatus = VehicleStatuses.Available;
+            booking.BookingStatus = BookingStatuses.Closed;
+        }
+        catch (Exception ex)
+        {
+
+            Message = ex.Message;
+        }
+        
     }
 
     public IPerson? GetPerson(int id) 
@@ -41,6 +85,10 @@ public class BookingProcessor
     public IVehicle? GetVehicle(int vehicleId) 
     {
         return _db.GetVehicles().Where(v => v.Id == vehicleId).FirstOrDefault();
+    }
+    public IBooking? GetBookings(int vehicleId)
+    {
+        return _db.GetBookings().Where(b => b.Vehicles.Id == vehicleId && b.BookingStatus == BookingStatuses.Open).FirstOrDefault();
     }
     public void AddCustomer(IPerson person)
     {

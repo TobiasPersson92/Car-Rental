@@ -13,28 +13,31 @@ public class Booking : IBooking
     public DateTime ReturnDate { get; set; } = DateTime.Now;
     public double Cost { get; set; }
     public int Distance { get; set; }
+    public int KmRented { get; init; }
+    public BookingStatuses BookingStatus { get; set; }
 
-    public Booking(int bookingId, IPerson person, IVehicle vehicle, DateTime rentDate)
+    public Booking(int bookingId, IPerson person, IVehicle vehicle, DateTime rentDate, BookingStatuses bookingStatus)
     {
         BookingId = bookingId;
         Persons = person;
         Vehicles = vehicle;
         RentDate = rentDate;
+        KmRented = Vehicles.Odometer;
+        BookingStatus = bookingStatus;
     }
-    public Booking(int bookingId, IPerson person, IVehicle vehicle, DateTime rentDate, double cost)
+    public Booking(int bookingId, IPerson person, IVehicle vehicle, DateTime rentDate, double cost, BookingStatuses bookingStatus)
     {
         BookingId = bookingId;
         Persons = person;
         Vehicles = vehicle;
         RentDate = rentDate;
         Cost = cost;
+        KmRented = Vehicles.Odometer;
+        BookingStatus = bookingStatus;
+    }
+    public Booking()
+    {
+        
     }
 
-    public void ReturnVehicle(IVehicle vehicle, int distance)
-    {
-        ReturnDate = DateTime.Now;
-        var days = (ReturnDate == RentDate) ? 1 : (ReturnDate - RentDate).Days;
-        Cost = (days * vehicle.CostDay) + (distance * vehicle.CostKm);
-        Vehicles.VehicleStatus = VehicleStatuses.Available;
-    }
 }

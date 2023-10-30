@@ -14,9 +14,11 @@
 <!--Tabell för customers-->
 <table class="table">
     <thead>
+        <tr>
         <th scope="col">SSN</th>
         <th scope="col">Last Name</th>
         <th scope="col">First Name</th>
+        </tr>
     </thead>
     <tbody>
          <tr>
@@ -43,6 +45,7 @@
 <!--Tabell för vehicles-->
 <table class="table">
     <thead>
+        <tr>
     <th scope="col">RegNo</th>
     <th scope="col">Make</th>
     <th scope="col">Odometer</th>
@@ -51,6 +54,7 @@
     <th scope="col">$ Day</th>
     <th scope="col">Action</th>
     <th scope="col">Status</th>
+        </tr>
     </thead>
     <tbody>
         <tr>
@@ -86,8 +90,8 @@
                 @if (vehicle.VehicleStatus == VehicleStatuses.Booked)
                 {
                     <td>
-                        <input type="number" placeholder="Distance" >
-                        <button>Return</button>
+                        <input type="number" placeholder="Distance" @bind=input.Booking.Distance>
+                        <button @onclick="@(()=> bp.ReturnVehicle(vehicle.Id, input.Booking.Distance))">Return</button>
                     </td>
                 }
                 else
@@ -99,7 +103,7 @@
                                 <option value="@customer.Id">@customer.LastName @customer.FirstName (@customer.Ssn)</option>
                              }
                          </InputSelect>
-                        <button onclick="@(()=> bp.RentVehicle(vehicle.Id, input.Person.Id))">Rent</button>
+                        <button @onclick="@(()=> bp.RentVehicle(vehicle.Id, input.Person.Id))">Rent</button>
                     </td>
                 }
                 <td>@vehicle.VehicleStatus</td>
@@ -111,6 +115,7 @@
 <!--Tabell för bookings-->
 <table class="table">
     <thead>
+        <tr>
     <th scope="col">RegNo</th>
     <th scope="col">Customer</th>
     <th scope="col">Km Rented</th>
@@ -119,6 +124,7 @@
     <th scope="col">Returned</th>
     <th scope="col">Cost</th>
     <th scope="col">Status</th>
+        </tr>
     </thead>
     <tbody>
         <!--foreach loop -->
@@ -127,10 +133,10 @@
             <tr>
                 <th scope="row">@booking.Vehicles.RegNo</th>
                 <td>@booking.Persons.LastName @booking.Persons.FirstName (@booking.Persons.Ssn)</td>
-                <td>@booking.Vehicles.Odometer</td>
-                @if (booking.Vehicles.VehicleStatus == VehicleStatuses.Available)
+                <td>@booking.KmRented</td>
+                @if (booking.BookingStatus == BookingStatuses.Closed)
                 {
-                    <td>@(booking.Vehicles.Odometer + booking.Distance)</td>
+                    <td>@(booking.KmRented + booking.Distance)</td>
                     <td>@booking.RentDate.ToShortDateString()</td>
                     <td>@booking.ReturnDate.ToShortDateString()</td>
                     <td>@booking.Cost</td>
