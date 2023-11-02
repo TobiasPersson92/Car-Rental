@@ -3,6 +3,7 @@ using Car_Rental.Common.Enums;
 using Car_Rental.Common.Interfaces;
 using Car_Rental.Data.Interfaces;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Car_Rental.Data.Classes;
 
@@ -45,28 +46,33 @@ public class CollectionData : IData
 
     public List<T> Get<T>(Expression<Func<T, bool>>? expression)
     {
-        throw new NotImplementedException();
+        var collection = GetListOfType<T>(expression).AsQueryable();
+
+        if (expression is null) return collection.ToList();
+
+        return collection.Where(expression).ToList();
     }
 
     public T? Single<T>(Expression<Func<T, bool>>? expression)
     {
-        throw new NotImplementedException();
+        return GetListOfType<T>(expression).SingleOrDefault();
     }
 
     public void Add<T>(T item)
     {
-        if (item is IPerson)
-        {
-            _persons.Add((IPerson)item);
-        }
-        else if (item is Vehicle)
-        {
-            _vehicles.Add((IVehicle)item);
-        }
-        else if (item is Booking)
-        {
-            _bookings.Add((IBooking)item);
-        }
+        GetListOfType<T>(t => t is T).Add(item);
+    }
+
+    public List<T> GetListOfType<T>(Expression<Func<T, bool>>? expression)
+    {
+        var collections = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+            .FirstOrDefault(f => f.FieldType == typeof(List<T>) && f.IsInitOnly)
+            ?? throw new InvalidOperationException("Unsupported type");
+
+        var value = collections.GetValue(this) ?? throw new InvalidDataException("Something went wrong");
+
+        var collection = (List<T>)value;
+        return collection;
     }
 
     public IBooking RentVehicle(int vehicleId, int customerId)
@@ -78,20 +84,4 @@ public class CollectionData : IData
     {
         throw new NotImplementedException();
     }
-
-
-    //Get- + Single-metoder
-    /*
-     var collections = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-     .FirstOrDefault(f => f.FieldType == typeof(List<T>) && f.IsInitOnly)
-     ?? throw new InvalidOperationException("Unsupported type");
-
-     var value = collections.GetValue(this) ?? throw new InvalidDataException
-
-     var collection = ((List<T>)value).AsQueryable();
-
-     if (expression is null) return collection.ToList();
-
-     return collection.Where(expression).ToList();
-     */
 }

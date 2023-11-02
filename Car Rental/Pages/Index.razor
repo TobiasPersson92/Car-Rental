@@ -57,25 +57,33 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td><input type="text" placeholder="RegNo" @bind=input.Vehicle.RegNo /></td>
-            <td><input type="text" placeholder="Make" @bind=input.Vehicle.Make /></td>
-            <td><input type="number" placeholder=0 @bind=input.Vehicle.Odometer /></td>
-            <td><input type="number" placeholder=0 @bind=input.Vehicle.CostKm /></td>
+        <tr >
+            <td><input type="text" placeholder="RegNo" @bind=input.Vehicle.RegNo disabled=@bp.Disabled/></td>
+            <td><input type="text" placeholder="Make" @bind=input.Vehicle.Make disabled=@bp.Disabled /></td>
+            <td><input type="number" placeholder=0 @bind=input.Vehicle.Odometer disabled=@bp.Disabled /></td>
+            <td><input type="number" placeholder=0 @bind=input.Vehicle.CostKm disabled=@bp.Disabled /></td>
             <td>
-                <InputSelect id="vehicletypes" @bind-Value="input.Vehicle.VehicleType">
+                <InputSelect id="vehicletypes" @bind-Value="input.Vehicle.VehicleType" disabled=@bp.Disabled>
                     @foreach (var vehicletype in Enum.GetValues(typeof(VehicleTypes)))
                     {
-                        <option value="@vehicletype">@vehicletype</option>
+                        <option value="@vehicletype">@vehicletype </option>
                     }
                 </InputSelect>
             </td>
-            <td><input type="number" placeholder=0 @bind=input.Vehicle.CostDay/></td>
+            <td><input type="number" placeholder=0 @bind=input.Vehicle.CostDay disabled=@bp.Disabled /></td>
             <td>
-                <button onclick="@(()=> bp.AddVehicle(input.Vehicle))">
+                <button onclick="@(()=> bp.AddVehicle(input.Vehicle))" disabled=@bp.Disabled>
                     Add
                 </button>
             </td>
+            @if (bp.Disabled)
+            {
+                <td><span class="badge rounded-pill bg-warning">Processing</span></td>
+            }
+            else
+            {
+                <td></td>
+            }
         </tr>
         <!--foreach loop -->
         @foreach (var vehicle in bp.GetVehicles())
@@ -90,23 +98,31 @@
                 @if (vehicle.VehicleStatus == VehicleStatuses.Booked)
                 {
                     <td>
-                        <input type="number" placeholder="Distance" @bind=input.Booking.Distance>
-                        <button @onclick="@(()=> bp.ReturnVehicle(vehicle.Id, input.Booking.Distance))">Return</button>
+                        <input type="number" placeholder="Distance" @bind=input.Booking.Distance disabled=@bp.Disabled>
+                        <button @onclick="@(()=> bp.ReturnVehicle(vehicle.Id, input.Booking.Distance))" disabled=@bp.Disabled>Return</button>
                     </td>
                 }
                 else
                 {
                     <td>
-                         <InputSelect id="rentvehicle" @bind-Value=input.Person.Id>
+                        <InputSelect id="rentvehicle" @bind-Value=input.Person.Id disabled=@bp.Disabled>
                              @foreach (var customer in bp.GetCustomers())
                              {
                                 <option value="@customer.Id">@customer.LastName @customer.FirstName (@customer.Ssn)</option>
                              }
                          </InputSelect>
-                        <button @onclick="@(()=> bp.RentVehicle(vehicle.Id, input.Person.Id))">Rent</button>
+                        <button @onclick="@(()=> bp.RentVehicle(vehicle.Id, input.Person.Id))" disabled=@bp.Disabled>Rent</button>
                     </td>
                 }
-                <td>@vehicle.VehicleStatus</td>
+                @if (@vehicle.VehicleStatus == VehicleStatuses.Available)
+                {
+                    <td><span class="badge rounded-pill bg-dark">@vehicle.VehicleStatus</span></td>
+                }
+                else
+                {
+                    <td><span class="badge rounded-pill bg-danger">@vehicle.VehicleStatus</span></td>
+                }
+                
             </tr>
         }
     </tbody>
@@ -140,7 +156,7 @@
                     <td>@booking.RentDate.ToShortDateString()</td>
                     <td>@booking.ReturnDate.ToShortDateString()</td>
                     <td>@booking.Cost</td>
-                    <td class="badge rounded-pill bg-success">Closed</td>
+                    <td><span class="badge rounded-pill bg-success">Closed</span></td>
                 }
                 else
                 {
@@ -148,7 +164,7 @@
                     <td>@booking.RentDate.ToShortDateString()</td>
                     <td></td>
                     <td></td>
-                    <td class="badge rounded-pill bg-danger">Open</td>
+                    <td> <span class="badge rounded-pill bg-danger">Open</span></td>
                 }
             </tr>
         }
